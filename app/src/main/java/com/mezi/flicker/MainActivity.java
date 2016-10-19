@@ -25,14 +25,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-public class MainActivity extends AppCompatActivity implements Handler.Callback, TaskDelegate {
+public class MainActivity extends AppCompatActivity implements TaskDelegate {
 
-    private static final String TAG = "PostsActivity";
-    private List<FlickerFIFO> posts;
     private RecyclerView flickrPicsView;
     private FlickrPicsAdapter picsAdapter;
-    private Handler handler;
-    private ArrayList<String> urls;
     ThreadPoolExecutor executor;
 
     @Override
@@ -71,18 +67,6 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback,
 
     }
 
-    private void handlePostsList(List<FlickerFIFO> posts) {
-        this.posts = posts;
-
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                for (FlickerFIFO post : MainActivity.this.posts) {
-                    Toast.makeText(MainActivity.this, "test", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-    }
 
     public ThreadPoolExecutor getExecutor() {
         return executor;
@@ -110,11 +94,6 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback,
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public boolean handleMessage(Message message) {
-        Log.d("Inside handler", "sucess");
-        return false;
-    }
 
     @Override
     public void taskCompletionResult(ArrayList<String> result, List<FlickrPics> flickrPics) {
