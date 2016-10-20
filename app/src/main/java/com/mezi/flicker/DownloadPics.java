@@ -2,14 +2,12 @@ package com.mezi.flicker;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.os.Handler;
 import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mezi.flicker.data.model.FlickrPhotoInfo;
 import com.mezi.flicker.data.model.FlickrPics;
-import com.mezi.flicker.data.threads.FlickrPicsDownloadThread;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -29,7 +27,6 @@ public class DownloadPics extends AsyncTask<String, Void, String> {
 
 
     ArrayList<String> urlList = new ArrayList<>();
-    MainActivity mainActivity = new MainActivity();
     Context context;
     private TaskDelegate delegate;
 
@@ -38,6 +35,7 @@ public class DownloadPics extends AsyncTask<String, Void, String> {
         this.context = mainActivity;
         this.delegate = taskDelegate;
     }
+
 
     @Override
     protected String doInBackground(String... urls) {
@@ -72,25 +70,11 @@ public class DownloadPics extends AsyncTask<String, Void, String> {
         }
         delegate.taskCompletionResult(urlList, posts);
 
-        for (int i = 0; i < 4; i++) {
-            if (i >= FlickrPicsDownloadThread.bitmaps.size() || FlickrPicsDownloadThread.bitmaps.get(i) == null) {
-                ((MainActivity) context).getExecutor().execute(new FlickrPicsDownloadThread(i, urlList.get(i), new Handler()));
-            }
-        }
-
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
     }
 
 
     private String downloadUrl(String myurl) throws IOException {
-        Log.d("URL", myurl + " ");
         InputStream is = null;
-
         try {
             URL url = new URL(myurl);
             String firstLine = "";
@@ -111,7 +95,6 @@ public class DownloadPics extends AsyncTask<String, Void, String> {
 
                 try {
                     //Read the server response and attempt to parse it as JSON
-
                     Reader readers = new InputStreamReader(is);
                     BufferedReader reader = new BufferedReader(
                             new InputStreamReader(is));

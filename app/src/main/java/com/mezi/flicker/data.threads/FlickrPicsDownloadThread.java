@@ -6,6 +6,9 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import com.mezi.flicker.DownloadPics;
+import com.mezi.flicker.MainActivity;
+
 import java.io.InputStream;
 import java.util.ArrayList;
 
@@ -21,38 +24,42 @@ public class FlickrPicsDownloadThread implements Runnable {
     public static final String TAG = "LongThread";
     public static ArrayList<Bitmap> bitmaps = new ArrayList<>();
     private Bitmap bitmap;
+    private FlickrPicsDownloadThread flickrPicsDownloadThread;
+    private Thread currentThread;
+    public final static int THREAD_FINISHED = 1;
+    private DownloadPics downloadPics;
+    private MainActivity mainActivity;
 
-    public FlickrPicsDownloadThread() {
+
+    public FlickrPicsDownloadThread(int threadNo, String imageUrl, Handler handler, MainActivity mainActivity) {
+        this.threadNo = threadNo;
+        this.handler = handler;
+        this.imageUrl = imageUrl;
+        this.mainActivity = mainActivity;
     }
 
-    public Bitmap getBitmap() {
-        return bitmap;
-    }
 
     private void setStatus(boolean status) {
         this.status = status;
     }
 
-    public boolean isThreadCompleted(int threadNo) {
-        return status;
-    }
-
-    public FlickrPicsDownloadThread(int threadNo, String imageUrl, Handler handler) {
-        this.threadNo = threadNo;
-        this.handler = handler;
-        this.imageUrl = imageUrl;
-    }
-
     @Override
     public void run() {
+        android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
         Log.i(TAG, "Starting Thread : " + threadNo);
-
-
         bitmap = getBitmap(imageUrl);
         setStatus(true);
-        //if (threadNo < bitmaps.size() && bitmaps.get(threadNo) == null)
         bitmaps.add(bitmap);
+        mainActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mainActivity.handleFinishedState(THREAD_FINISHED);
 
+
+            }
+        });
+
+        //handler.setImage(bitmap);
         sendMessage(threadNo, "Thread Completed");
 
         Log.i(TAG, "Thread Completed " + threadNo);

@@ -2,12 +2,11 @@ package com.mezi.flicker.ui.adapter;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.os.Handler;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -66,29 +65,9 @@ public class FlickrPicsAdapter extends RecyclerView.Adapter<FlickrPicsAdapter.It
 
     @Override
     public void onBindViewHolder(FlickrPicsAdapter.ItemHolder holder, int position) {
-        while (threadCompleted < urls.size()) {
-            Log.d("Thread is", threadCompleted + "");
-            Runnable thread = new FlickrPicsDownloadThread(threadCompleted, urls.get(threadCompleted), new Handler());
-            if (!((FlickrPicsDownloadThread) thread).isThreadCompleted(position + 1))
-                executor.execute(thread);
-            threadCompleted++;
-        }
-        if (position >= FlickrPicsDownloadThread.bitmaps.size() || FlickrPicsDownloadThread.bitmaps.get(position) == null) {
-            Log.d("Inside actual call", "True" + position);
-            Runnable thread = new FlickrPicsDownloadThread(position, urls.get(position), new Handler());
-            executor.execute(thread);
-            Bitmap bitmap;
-            while (true) {
-                int count = 0;
-                bitmap = ((FlickrPicsDownloadThread) thread).getBitmap();
-                if (bitmap != null || count > 10) {
-                    count++;
-                    break;
-                }
-            }
-            // FlickrPicsDownloadThread.bitmaps.add(position,bitmap);
-            holder.imgView.setImageBitmap(bitmap);
 
+        if (position >= FlickrPicsDownloadThread.bitmaps.size() || FlickrPicsDownloadThread.bitmaps.get(position) == null) {
+            holder.imgView.setImageBitmap(null);
         } else {
             holder.imgView.setImageBitmap(FlickrPicsDownloadThread.bitmaps.get(position));
         }
@@ -112,11 +91,14 @@ public class FlickrPicsAdapter extends RecyclerView.Adapter<FlickrPicsAdapter.It
     public static class ItemHolder extends RecyclerView.ViewHolder {
         ImageView imgView;
         TextView imgTitle;
+        FrameLayout contentLayout, progressBar;
 
         public ItemHolder(View itemView) {
             super(itemView);
             imgView = (ImageView) itemView.findViewById(R.id.flickrImageView);
             imgTitle = (TextView) itemView.findViewById(R.id.title);
+            contentLayout = (FrameLayout) itemView.findViewById(R.id.contentLayout);
+            progressBar = (FrameLayout) itemView.findViewById(R.id.progress_bar_parent);
         }
     }
 }
